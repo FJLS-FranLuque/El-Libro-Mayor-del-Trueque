@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Libro Mayor del Trueque — Aldeanos de Minecraft</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=JetBrains+Mono:wght@400;500;700&family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cave-950:#120f0b;
+    --cave-900:#1b1712;
+    --dirt-800:#2c2117;
+    --dirt-700:#3c2c1d;
+    --parchment:#f3e8ce;
+    --parchment-dim:#cbbf9f;
+    --emerald:#22c55e;
+    --emerald-bright:#5eead4;
+    --emerald-deep:#0e7a3e;
+    --amber:#e8a33d;
+    --redstone:#c4432f;
+    --lapis:#3b6fd4;
+    --iron:#b9b6ab;
+    --line:#4a3a28;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 600px at 15% -10%, rgba(34,197,94,0.08), transparent 60%),
+      radial-gradient(1000px 500px at 100% 0%, rgba(232,163,61,0.07), transparent 55%),
+      var(--cave-950);
+    color:var(--parchment);
+    font-family:'Work Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--emerald-deep); color:#fff;}
+  a{color:inherit;}
+
+  .pixel-corners{
+    clip-path: polygon(
+      0px 8px, 4px 8px, 4px 4px, 8px 4px, 8px 0px,
+      calc(100% - 8px) 0px, calc(100% - 8px) 4px, calc(100% - 4px) 4px, calc(100% - 4px) 8px, 100% 8px,
+      100% calc(100% - 8px), calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) calc(100% - 4px), calc(100% - 8px) calc(100% - 4px), calc(100% - 8px) 100%,
+      8px 100%, 8px calc(100% - 4px), 4px calc(100% - 4px), 4px calc(100% - 8px), 0px calc(100% - 8px)
+    );
+  }
+
+  header.hero{
+    position:relative;
+    padding:6.5rem 6vw 5rem;
+    border-bottom:1px solid var(--line);
+    overflow:hidden;
+  }
+  header.hero::before{
+    content:"";
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(rgba(34,197,94,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(34,197,94,0.05) 1px, transparent 1px);
+    background-size:34px 34px;
+    mask-image:linear-gradient(to bottom, black, transparent 85%);
+    pointer-events:none;
+  }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:.6rem;
+    font-family:'JetBrains Mono', monospace;
+    font-size:.78rem; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--emerald-bright);
+    background:rgba(34,197,94,0.08);
+    border:1px solid rgba(34,197,94,0.35);
+    padding:.4rem .8rem;
+    margin-bottom:1.6rem;
+  }
+  .eyebrow .dot{width:6px;height:6px;background:var(--emerald-bright);display:inline-block;}
+  h1.title{
+    font-family:'Rubik Mono One', sans-serif;
+    font-weight:400;
+    font-size:clamp(2.4rem, 6vw, 5rem);
+    line-height:1.02;
+    margin:0 0 1.5rem;
+    max-width:16ch;
+    text-shadow: 4px 4px 0 rgba(0,0,0,0.35);
+  }
+  h1.title span{color:var(--emerald);}
+  .hero p.lede{
+    max-width:52ch;
+    font-size:1.15rem;
+    line-height:1.6;
+    color:var(--parchment-dim);
+    margin:0 0 2.4rem;
+  }
+  .hero-stats{
+    display:flex; gap:0; flex-wrap:wrap;
+    border-top:1px solid var(--line);
+    max-width:640px;
+  }
+  .hero-stats div{
+    flex:1; min-width:130px;
+    padding:1rem 1.4rem 0;
+    border-right:1px solid var(--line);
+  }
+  .hero-stats div:last-child{border-right:none;}
+  .hero-stats b{
+    display:block;
+    font-family:'JetBrains Mono', monospace;
+    font-size:1.7rem;
+    color:var(--emerald-bright);
+  }
+  .hero-stats span{font-size:.8rem; color:var(--parchment-dim);}
+
+  .toolbar{
+    position:sticky; top:0; z-index:20;
+    background:rgba(18,15,11,0.92);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+    padding:1rem 6vw;
+    display:flex; gap:1rem; align-items:center; flex-wrap:wrap;
+  }
+  #search{
+    flex:1; min-width:220px;
+    background:var(--dirt-800);
+    border:1px solid var(--line);
+    color:var(--parchment);
+    font-family:'JetBrains Mono', monospace;
+    font-size:.92rem;
+    padding:.75rem 1rem;
+    outline:none;
+  }
+  #search:focus{border-color:var(--emerald);}
+  #search::placeholder{color:var(--parchment-dim);}
+  .filter-chip{
+    font-family:'JetBrains Mono', monospace;
+    font-size:.72rem; letter-spacing:.05em; text-transform:uppercase;
+    color:var(--parchment-dim);
+    background:transparent;
+    border:1px solid var(--line);
+    padding:.55rem .9rem;
+    cursor:pointer;
+    transition:.15s;
+  }
+  .filter-chip:hover{border-color:var(--emerald); color:var(--parchment);}
+  .filter-chip.active{background:var(--emerald-deep); border-color:var(--emerald); color:#fff;}
+  .result-count{font-family:'JetBrains Mono',monospace; font-size:.75rem; color:var(--parchment-dim); white-space:nowrap;}
+
+  main{padding:3.5rem 6vw 6rem;}
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(340px, 1fr));
+    gap:1.4rem;
+  }
+
+  .card{
+    background:var(--dirt-800);
+    border:1px solid var(--line);
+    transition:border-color .15s;
+  }
+  .card:hover{border-color:var(--emerald-deep);}
+  .card.hidden{display:none;}
+
+  .card-head{
+    display:flex; align-items:center; gap:1rem;
+    padding:1.2rem 1.3rem;
+    cursor:pointer;
+    user-select:none;
+  }
+  .mono-icon{
+    flex-shrink:0;
+    width:46px; height:46px;
+    display:grid; place-items:center;
+    font-family:'JetBrains Mono', monospace;
+    font-weight:700; font-size:1rem;
+    color:#0b0b0b;
+    background:var(--iconbg, var(--amber));
+  }
+  .card-head h3{
+    margin:0; font-size:1.08rem; font-weight:700; color:var(--parchment);
+  }
+  .card-head .station{
+    margin:.15rem 0 0; font-size:.76rem; color:var(--parchment-dim);
+    font-family:'JetBrains Mono', monospace;
+  }
+  .card-head .chev{
+    margin-left:auto; color:var(--parchment-dim); font-size:1.1rem;
+    transition:transform .2s;
+  }
+  .card.open .chev{transform:rotate(180deg); color:var(--emerald-bright);}
+
+  .tier-ladder{display:flex; gap:4px; padding:0 1.3rem 1.1rem;}
+  .tier-pip{
+    flex:1; height:5px; background:var(--line);
+    position:relative;
+  }
+  .tier-pip.filled{background:var(--emerald);}
+  .tier-pip.empty-job{background:var(--redstone); opacity:.5;}
+
+  .card-body{
+    max-height:0; overflow:hidden;
+    transition:max-height .25s ease;
+    border-top:1px solid var(--line);
+  }
+  .card.open .card-body{max-height:2400px;}
+
+  .level-block{
+    padding:1rem 1.3rem;
+    border-bottom:1px dashed var(--line);
+  }
+  .level-block:last-child{border-bottom:none;}
+  .level-tag{
+    display:inline-block;
+    font-family:'JetBrains Mono', monospace;
+    font-size:.68rem; letter-spacing:.08em; text-transform:uppercase;
+    padding:.2rem .55rem;
+    margin-bottom:.6rem;
+    color:#0b0b0b;
+  }
+  .trade-row{
+    display:flex; justify-content:space-between; gap:.8rem;
+    font-size:.88rem;
+    padding:.3rem 0;
+    color:var(--parchment-dim);
+  }
+  .trade-row b{color:var(--parchment); font-weight:600;}
+  .trade-row .dir{
+    font-family:'JetBrains Mono', monospace;
+    font-size:.72rem;
+    flex-shrink:0;
+    padding-top:.15rem;
+  }
+  .dir.buy{color:var(--emerald-bright);}
+  .dir.sell{color:var(--amber);}
+
+  .empty-note{
+    padding:1.1rem 1.3rem; font-size:.88rem; color:var(--parchment-dim); font-style:italic;
+  }
+
+  footer{
+    border-top:1px solid var(--line);
+    padding:2.5rem 6vw;
+    font-size:.82rem;
+    color:var(--parchment-dim);
+    display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap;
+  }
+  footer .mark{
+    font-family:'JetBrains Mono', monospace; color:var(--emerald-bright);
+  }
+
+  @media (max-width:640px){
+    header.hero{padding:4rem 5vw 3rem;}
+    main{padding:2.5rem 5vw 4rem;}
+    .toolbar{padding:.9rem 5vw;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important; scroll-behavior:auto !important;}
+  }
+
+  :focus-visible{outline:2px solid var(--emerald-bright); outline-offset:2px;}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <span class="eyebrow"><span class="dot"></span> Guía de comercio · Java Edition</span>
+  <h1 class="title">El Libro Mayor <span>del Trueque</span></h1>
+  <p class="lede">Cada oficio de aldeano abre su propio mostrador: lo que compra, lo que vende, y a qué precio en esmeraldas sube según su nivel de reputación. Aquí está todo el catálogo, mesa por mesa.</p>
+  <div class="hero-stats">
+    <div><b>15</b><span>oficios distintos</span></div>
+    <div><b>5</b><span>niveles de reputación</span></div>
+    <div><b>1</b><span>moneda: la esmeralda</span></div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <input id="search" type="text" placeholder="Buscar un objeto o un oficio… ej. &quot;esmeralda&quot;, &quot;pan&quot;, &quot;clérigo&quot;">
+  <button class="filter-chip active" data-filter="all">Todos</button>
+  <button class="filter-chip" data-filter="buy">Compran</button>
+  <button class="filter-chip" data-filter="sell">Venden</button>
+  <span class="result-count" id="count"></span>
+</div>
+
+<main>
+  <div class="grid" id="grid"></div>
+</main>
+
+<footer>
+  <span>Cantidades orientativas — Minecraft randomiza cada intercambio dentro de un rango y varía ligeramente entre versiones.</span>
+  <span class="mark">// hecho con Claude</span>
+</footer>
+
+<script>
+const TIERS = [
+  {name:"Novato",    color:"#c9a876"},
+  {name:"Aprendiz",  color:"#dcb46a"},
+  {name:"Oficial",   color:"#e0d64f"},
+  {name:"Experto",   color:"#7fd4e8"},
+  {name:"Maestro",   color:"#5eead4"},
+];
+
+// Cada oficio: id, nombre, mesa de trabajo, color de icono, sigla, y niveles con trades.
+// trade: {dir:'buy'|'sell', item, qty, esm, note?}
+// buy = el aldeano TE compra el objeto (tú recibes esmeraldas)
+// sell = el aldeano TE vende el objeto (tú pagas esmeraldas u otros objetos)
+const VILLAGERS = [
+{
+  id:"agricultor", name:"Agricultor", station:"Compostador", icon:"AG", color:"#8bc34a",
+  levels:[
+    [
+      {dir:"buy", item:"Trigo", qty:"20", esm:"1"},
+      {dir:"buy", item:"Patata", qty:"26", esm:"1"},
+      {dir:"buy", item:"Zanahoria", qty:"22", esm:"1"},
+      {dir:"buy", item:"Remolacha", qty:"15", esm:"1"},
+    ],
+    [{dir:"sell", item:"Pan", qty:"1", esm:"1"}],
+    [{dir:"sell", item:"Tarta de calabaza", qty:"1", esm:"1", note:"+ 1 calabaza"}],
+    [{dir:"sell", item:"Manzana", qty:"4", esm:"1"}],
+    [{dir:"sell", item:"Tarta", qty:"1", esm:"1", note:"+ huevo, leche y trigo"}],
+  ]
+},
+{
+  id:"pescador", name:"Pescador", station:"Barril", icon:"PE", color:"#4fc3f7",
+  levels:[
+    [
+      {dir:"buy", item:"Bacalao crudo", qty:"6", esm:"1"},
+      {dir:"buy", item:"Salmón crudo", qty:"6", esm:"1"},
+    ],
+    [{dir:"buy", item:"Carbón", qty:"10", esm:"1"}],
+    [{dir:"sell", item:"Bacalao cocinado", qty:"6", esm:"1"}],
+    [{dir:"sell", item:"Caña de pescar encantada", qty:"1", esm:"7", note:"+ libro"}],
+    [{dir:"buy", item:"Pez globo / Salmón fresa", qty:"5", esm:"1"}],
+  ]
+},
+{
+  id:"pastor", name:"Pastor", station:"Telar", icon:"PA", color:"#ba68c8",
+  levels:[
+    [{dir:"buy", item:"Lana", qty:"18", esm:"1"}],
+    [{dir:"sell", item:"Tijeras", qty:"1", esm:"2"}],
+    [{dir:"sell", item:"Lana teñida", qty:"1", esm:"1"}],
+    [{dir:"sell", item:"Cama", qty:"1", esm:"3"}],
+    [{dir:"sell", item:"Estandarte", qty:"1", esm:"3"}, {dir:"sell", item:"Cuadro", qty:"1", esm:"7"}],
+  ]
+},
+{
+  id:"pescadero_flechero", name:"Flechero", station:"Mesa de flechería", icon:"FL", color:"#8d6e63",
+  levels:[
+    [{dir:"buy", item:"Palo", qty:"32", esm:"1"}],
+    [{dir:"buy", item:"Pedernal", qty:"26", esm:"1"}],
+    [{dir:"sell", item:"Arco", qty:"1", esm:"3"}],
+    [{dir:"buy", item:"Cuerda", qty:"14", esm:"1"}, {dir:"sell", item:"Flecha", qty:"1", esm:"1", note:"por 4"}],
+    [{dir:"sell", item:"Ballesta", qty:"1", esm:"3"}, {dir:"sell", item:"Flechas con efecto", qty:"1", esm:"5", note:"+ 1 flecha"}],
+  ]
+},
+{
+  id:"bibliotecario", name:"Bibliotecario", station:"Atril", icon:"BI", color:"#7986cb",
+  levels:[
+    [{dir:"buy", item:"Papel", qty:"24", esm:"1"}],
+    [{dir:"sell", item:"Libro encantado", qty:"1", esm:"5–64", note:"+ 1 libro, según encantamiento"}],
+    [{dir:"sell", item:"Reloj", qty:"1", esm:"10"}, {dir:"sell", item:"Vidrio", qty:"1", esm:"1", note:"por 4"}],
+    [{dir:"sell", item:"Brújula", qty:"1", esm:"10"}, {dir:"sell", item:"Librero", qty:"1", esm:"4"}],
+    [{dir:"sell", item:"Nametag", qty:"1", esm:"20"}, {dir:"sell", item:"Libro encantado (raro)", qty:"1", esm:"5–64"}],
+  ]
+},
+{
+  id:"cartografo", name:"Cartógrafo", station:"Mesa de cartografía", icon:"CA", color:"#ffb74d",
+  levels:[
+    [{dir:"buy", item:"Papel", qty:"24", esm:"1"}],
+    [{dir:"sell", item:"Mapa vacío", qty:"1", esm:"7", note:"+ brújula"}],
+    [{dir:"sell", item:"Mapa a monumento oceánico", qty:"1", esm:"13", note:"+ mapa"}],
+    [{dir:"sell", item:"Mapa a mansión del bosque", qty:"1", esm:"14", note:"+ mapa"}],
+    [{dir:"sell", item:"Globo terráqueo con estandarte", qty:"1", esm:"8", note:"+ estandarte"}],
+  ]
+},
+{
+  id:"clerigo", name:"Clérigo", station:"Soporte de pociones", icon:"CL", color:"#e57373",
+  levels:[
+    [{dir:"buy", item:"Carne podrida", qty:"32", esm:"1"}],
+    [{dir:"buy", item:"Polvo de piedra luminosa", qty:"1", esm:"1", note:"por 4"}],
+    [{dir:"buy", item:"Pie de conejo", qty:"1", esm:"1", note:"por 2"}],
+    [{dir:"sell", item:"Redstone", qty:"1", esm:"1", note:"por 4"}, {dir:"sell", item:"Lapislázuli", qty:"1", esm:"1", note:"por 5"}],
+    [{dir:"sell", item:"Perla de Ender", qty:"1", esm:"5"}, {dir:"sell", item:"Botella de experiencia", qty:"1", esm:"3"}],
+  ]
+},
+{
+  id:"armero", name:"Armero", station:"Alto horno", icon:"AR", color:"#78909c",
+  levels:[
+    [{dir:"buy", item:"Carbón", qty:"15", esm:"1"}],
+    [{dir:"buy", item:"Lingote de hierro", qty:"4", esm:"1"}],
+    [{dir:"sell", item:"Peto de hierro", qty:"1", esm:"9"}],
+    [{dir:"buy", item:"Lingote de diamante", qty:"1", esm:"3"}],
+    [{dir:"sell", item:"Peto de diamante", qty:"1", esm:"16", note:"+ diamante"}, {dir:"sell", item:"Escudo", qty:"1", esm:"5–7"}],
+  ]
+},
+{
+  id:"armero_de_armas", name:"Herrero de armas", station:"Amoladora", icon:"HA", color:"#90a4ae",
+  levels:[
+    [{dir:"buy", item:"Carbón", qty:"15", esm:"1"}],
+    [{dir:"buy", item:"Lingote de hierro", qty:"6", esm:"1"}],
+    [{dir:"sell", item:"Espada de hierro", qty:"1", esm:"7"}, {dir:"buy", item:"Bloque de esmeralda", qty:"1", esm:"9"}],
+    [{dir:"buy", item:"Lingote de diamante", qty:"1", esm:"3"}],
+    [{dir:"sell", item:"Espada de diamante", qty:"1", esm:"13", note:"+ diamante"}, {dir:"sell", item:"Hacha de diamante", qty:"1", esm:"13", note:"+ diamante"}],
+  ]
+},
+{
+  id:"herrero_herramientas", name:"Herrero de herramientas", station:"Mesa de herrería", icon:"HH", color:"#a1887f",
+  levels:[
+    [{dir:"buy", item:"Carbón", qty:"15", esm:"1"}],
+    [{dir:"buy", item:"Lingote de hierro", qty:"4", esm:"1"}],
+    [{dir:"sell", item:"Pico de hierro", qty:"1", esm:"7"}],
+    [{dir:"buy", item:"Lingote de diamante", qty:"1", esm:"3"}],
+    [{dir:"sell", item:"Pico de diamante", qty:"1", esm:"13", note:"+ diamante"}, {dir:"sell", item:"Hacha de diamante", qty:"1", esm:"13", note:"+ diamante"}],
+  ]
+},
+{
+  id:"carnicero", name:"Carnicero", station:"Ahumador", icon:"CN", color:"#e8a33d",
+  levels:[
+    [
+      {dir:"buy", item:"Chuleta de cerdo cruda", qty:"14", esm:"1"},
+      {dir:"buy", item:"Pollo crudo", qty:"14", esm:"1"},
+    ],
+    [{dir:"buy", item:"Carbón", qty:"15", esm:"1"}],
+    [{dir:"sell", item:"Chuleta de cerdo cocinada", qty:"5", esm:"1"}],
+    [{dir:"sell", item:"Conejo cocinado", qty:"5", esm:"1"}],
+    [{dir:"sell", item:"Estofado de conejo", qty:"1", esm:"1"}, {dir:"sell", item:"Pollo cocinado", qty:"6", esm:"1"}],
+  ]
+},
+{
+  id:"curtidor", name:"Curtidor", station:"Caldero", icon:"CU", color:"#a1887f",
+  levels:[
+    [{dir:"buy", item:"Cuero", qty:"9", esm:"1"}],
+    [{dir:"sell", item:"Botas de cuero", qty:"1", esm:"2–4"}],
+    [{dir:"buy", item:"Piel de conejo", qty:"9", esm:"1"}, {dir:"sell", item:"Silla de montar", qty:"1", esm:"6"}],
+    [{dir:"sell", item:"Peto de cuero encantado", qty:"1", esm:"9–14"}],
+    [{dir:"sell", item:"Yelmo de cuero encantado", qty:"1", esm:"9–13"}],
+  ]
+},
+{
+  id:"cantero", name:"Cantero", station:"Cortadora de piedra", icon:"CT", color:"#bdbdbd",
+  levels:[
+    [{dir:"buy", item:"Arcilla", qty:"10", esm:"1"}],
+    [{dir:"sell", item:"Ladrillos", qty:"10", esm:"1"}],
+    [{dir:"buy", item:"Piedra pulida", qty:"20", esm:"1"}, {dir:"sell", item:"Terracota tallada", qty:"4", esm:"1"}],
+    [{dir:"sell", item:"Cuarzo tallado", qty:"1", esm:"1"}],
+    [{dir:"sell", item:"Terracota vidriada", qty:"1", esm:"3"}],
+  ]
+},
+{
+  id:"desempleado", name:"Desempleado", station:"Sin mesa de trabajo", icon:"—", color:"#5d4a38",
+  levels:[]
+},
+{
+  id:"bobo", name:"Bobo (Nitwit)", station:"Nunca tiene oficio", icon:"?!", color:"#6b7a3f",
+  levels:[]
+},
+];
+
+const grid = document.getElementById("grid");
+const countEl = document.getElementById("count");
+const searchEl = document.getElementById("search");
+let activeFilter = "all";
+
+function renderTrade(t){
+  const noteHtml = t.note ? ` <span style="opacity:.65">(${t.note})</span>` : "";
+  const label = t.dir === "buy"
+    ? `<span class="dir buy">TE COMPRA</span>`
+    : `<span class="dir sell">TE VENDE</span>`;
+  const desc = t.dir === "buy"
+    ? `<b>${t.qty} × ${t.item}</b> → ${t.esm} esmeralda${t.esm!=="1"?"s":""}${noteHtml}`
+    : `${t.esm} esmeralda${t.esm!=="1"?"s":""} → <b>${t.qty} × ${t.item}</b>${noteHtml}`;
+  return `<div class="trade-row" data-item="${t.item.toLowerCase()}" data-dir="${t.dir}">${label}<span style="text-align:right">${desc}</span></div>`;
+}
+
+function renderCard(v){
+  const el = document.createElement("div");
+  el.className = "card pixel-corners";
+  el.dataset.name = v.name.toLowerCase();
+
+  const hasLevels = v.levels.length > 0;
+  const filledPips = hasLevels ? v.levels.length : 0;
+
+  let ladder = "";
+  for(let i=0;i<5;i++){
+    if(!hasLevels){ ladder += `<div class="tier-pip empty-job"></div>`; }
+    else { ladder += `<div class="tier-pip ${i<filledPips?'filled':''}"></div>`; }
+  }
+
+  let body = "";
+  if(!hasLevels){
+    body = `<div class="empty-note">${v.id === "bobo" ? "Los bobos nunca comercian ni pueden asignárseles un oficio — solo se quedan mirando." : "Todavía no tiene mesa de trabajo asignada, así que no ofrece ningún intercambio."}</div>`;
+  } else {
+    v.levels.forEach((trades, i) => {
+      const tier = TIERS[i];
+      body += `<div class="level-block">
+        <span class="level-tag" style="background:${tier.color}">${tier.name}</span>
+        ${trades.map(renderTrade).join("")}
+      </div>`;
+    });
+  }
+
+  el.innerHTML = `
+    <div class="card-head">
+      <div class="mono-icon" style="--iconbg:${v.color}">${v.icon}</div>
+      <div>
+        <h3>${v.name}</h3>
+        <p class="station">${v.station}</p>
+      </div>
+      <span class="chev">▾</span>
+    </div>
+    <div class="tier-ladder">${ladder}</div>
+    <div class="card-body">${body}</div>
+  `;
+
+  el.querySelector(".card-head").addEventListener("click", () => {
+    el.classList.toggle("open");
+  });
+
+  return el;
+}
+
+VILLAGERS.forEach(v => grid.appendChild(renderCard(v)));
+
+function applyFilters(){
+  const q = searchEl.value.trim().toLowerCase();
+  let visible = 0;
+  document.querySelectorAll(".card").forEach(card => {
+    const rows = card.querySelectorAll(".trade-row");
+    let rowMatch = q === "";
+    let dirMatch = activeFilter === "all" ? true : false;
+    let anyRowVisibleForDir = false;
+
+    rows.forEach(r => {
+      const matchesText = q === "" || r.dataset.item.includes(q);
+      const matchesDir = activeFilter === "all" || r.dataset.dir === activeFilter;
+      const show = matchesText && matchesDir;
+      r.style.display = show ? "flex" : "none";
+      if(matchesText) rowMatch = true;
+      if(matchesDir) anyRowVisibleForDir = true;
+    });
+
+    const nameMatch = card.dataset.name.includes(q);
+    const stationMatch = card.querySelector(".station").textContent.toLowerCase().includes(q);
+    const textOk = q === "" || nameMatch || stationMatch || Array.from(rows).some(r => r.dataset.item.includes(q));
+    const dirOk = activeFilter === "all" || anyRowVisibleForDir;
+
+    const show = textOk && dirOk;
+    card.classList.toggle("hidden", !show);
+    if(show) visible++;
+  });
+  countEl.textContent = visible + " de " + VILLAGERS.length + " oficios";
+}
+
+searchEl.addEventListener("input", applyFilters);
+document.querySelectorAll(".filter-chip").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".filter-chip").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    activeFilter = btn.dataset.filter;
+    applyFilters();
+  });
+});
+
+applyFilters();
+</script>
+
+</body>
+</html>
